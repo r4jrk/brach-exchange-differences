@@ -5,50 +5,43 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
+import java.util.ArrayList;
 
 public class LabelPrint implements Printable {
-    
+    //Set the label dimensions in printer's properties to: 50 mm x 30 mm. Margins: 0 mm
+
     private static final String FONT_NAME = "Courier New";
-    private static final int FONT_SIZE = 12;
-    
-    private final String printData;
-    
-    public LabelPrint(String printDataIn){
-        this.printData = printDataIn;
+    private static final int FONT_SIZE = 8;
+
+    static final float PRINT_PAGE_HEIGHT = 60; //Width in fact
+    static final float PRINT_PAGE_WIDTH = 80; //Height in fact
+
+    private final ArrayList<String> labelText;
+
+    public LabelPrint(ArrayList<String> labelText) {
+        this.labelText = labelText;
     }
 
     @Override
-    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-        //Tylko jedna strona
-        if (pageIndex > 0) {
-            return NO_SUCH_PAGE;
-        }
+    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) {
+        //Two pages only
+        if (pageIndex > 0) return NO_SUCH_PAGE;
 
         Graphics2D g2d = (Graphics2D) graphics;
-        g2d.setFont(new Font(FONT_NAME, 0, FONT_SIZE));
-        
-        int lineHeight = FONT_SIZE;
+        g2d.setFont(new Font(FONT_NAME, Font.PLAIN, FONT_SIZE));
 
-        BufferedReader br = new BufferedReader(new StringReader(printData));
+        int loopCount = 0;
 
-        //Stwórz stronę do druku
-        try {
-            String line = br.readLine();
-            int y = 0;
-            while (line != null) {
-                y += lineHeight;
-                g2d.drawString(line, 0, y);
-                line = br.readLine();
-            }
-        } catch (IOException e) {
-            System.out.println(e.toString());
+        String line = labelText.get(loopCount);
+
+        while (loopCount != labelText.size()) {
+            g2d.drawString(line, 0, loopCount * FONT_SIZE);
+
+            line = labelText.get(loopCount);
+
+            loopCount++;
         }
-        
+
         return PAGE_EXISTS;
     }
-
 }
